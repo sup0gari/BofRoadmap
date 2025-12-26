@@ -1,0 +1,13 @@
+memo.txt
+Stack/step1
+Stack/step2
+Stack/step3
+*.out
+.gdb_history
+Stack/.gdb_history
+peda-session-*.txt
+.peda-session-*
+core
+core.*
+__pycache__/
+*.pyc
