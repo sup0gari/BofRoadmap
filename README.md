@@ -13,43 +13,32 @@ Usage of the tools or techniques provided in this repository for attacking targe
 The author assumes no liability and is not responsible for any misuse or damage caused by this information.
 
 ## Stack
-Step 1: Basic BOF (Return to Function)
-内容: win() 関数などの、プログラム内に存在する「本来呼ばれないはずの場所」へジャンプさせる。
-キーワード: 戻り先アドレスの書き換え、オフセットの特定。
+Step 1: プログラム内に存在する「本来呼ばれないはずの場所」へジャンプさせる。
+1. 本来呼ばれない関数のアドレスを特定する。
+2. main関数のbufferに規定のバイト数を超えて入力し、セグメンテーションフォールトを起こす。
+3. rspが指すアドレスが入力したデータで上書きされるため、そのデータを利用してrspまでのオフセットを特定する。
+4. そのオフセット分を適当なバイトデータで埋めて、rspが指すアドレス部分を1で求めたアドレスにする。
 
-Step 2: Shellcode Injection
-内容: スタックに「シェルを起動するマシン語（シェルコード）」を自分で書き込み、そこへジャンプする。
-キーワード: execve("/bin/sh")、NXビット無効化。
+Step 2: スタックにシェルコードを自分で書き込み、そこへジャンプさせる。
+1. 脆弱な関数で扱うバッファのアドレスを特定する。
+2. 今回は64バイトで、100バイトのデータを入力し、セグメンテーションフォールトを起こす。
+3. rspが指すアドレスが入力したデータで上書きされるため、そのデータを利用してrspまでのオフセットを特定する。
+4. そのオフセット分に対して自身が作成したシェルコード、適当なバイトデータの順で入力。rspが指すアドレス部分をバッファのアドレスにする。
+5. rspが指すアドレスはバッファのアドレスのため、シェルコードの位置にジャンプし、実行される。
 
-Step 3: ROP (Return Oriented Programming)
-内容: NXビットが有効な場合、既存のコードの断片（gadget）を繋ぎ合わせて攻撃を組み立てる。
-キーワード: pop rdi; ret、引数のセット、ガジェットチェーン。
+Step 3: NXビットが有効な場合、既存のコードの断片（gadget）を繋ぎ合わせて攻撃を組み立てる（ROP）。
 
-Step 4: ASLR Bypass (Information Leak)
-内容: 実行のたびに変わる関数の住所を、一度画面に出力（Leak）させて特定し、攻撃を成立させる。
-キーワード: puts@plt、GOT Overwrite、libcベースアドレス計算。
+Step 4: 実行のたびに変わる関数の住所（ASLRの有効）を、一度画面に出力させて特定し、攻撃を成立させる。
 
-Step 5: Modern Protections (Canary & PIE)
-内容: スタックの番人（Canary）や、バイナリ自体のランダム化（PIE）をすべて突破する。
-キーワード: Canary Leak、PIE Bypass。
+Step 5: CanaryやPIEをすべて突破する。
 
 ## Heap
-Step 1: Use-After-Free (UAF)
-内容: free() された後のメモリ（ポインタ）が残っているのを利用して、別のデータとして読み書きする。
-キーワード: 解放済みポインタ、データの混線。
+Step 1: free() された後のメモリ（ポインタ）が残っているのを利用して、別のデータとして読み書きする。
 
-Step 2: Heap Overflow
-内容: ヒープ上のデータのサイズを超えて書き込み、隣にある「管理情報（メタデータ）」を破壊する。
-キーワード: Chunk Metadata、Size書き換え。
+Step 2: ヒープ上のデータのサイズを超えて書き込み、隣にある「管理情報（メタデータ）」を破壊する。
 
-Step 3: Double Free
-内容: 同じ領域を2回 free() することで、メモリ管理リストを循環させ、好きな住所に malloc させる。
-キーワード: tcache poisoning、Fastbin dup。
+Step 3: 同じ領域を2回 free() することで、メモリ管理リストを循環させ、好きな住所に malloc させる。
 
-Step 4: Heap Grooming (Heap Spraying)
-内容: メモリ上の配置を意図的にコントロールし、特定の場所にデータを隙間なく並べる。
-キーワード: メモリレイアウトの制御。
+Step 4: メモリ上の配置を意図的にコントロールし、特定の場所にデータを隙間なく並べる。
 
-Step 5: Advanced GLIBC Attacks
-内容: 最新の libc が備えるヒープ防御（ポインタの暗号化など）を突破する。
-キーワード: Tcache protection bypass、Safe-linking。
+Step 5: 最新の libc が備えるヒープ防御（ポインタの暗号化など）を突破する。

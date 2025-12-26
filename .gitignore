@@ -1,7 +1,6 @@
 memo.txt
-Stack/step1
-Stack/step2
-Stack/step3
+Stack/
+Heap/
 *.out
 .gdb_history
 Stack/.gdb_history
