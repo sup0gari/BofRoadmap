@@ -12,3 +12,4 @@ core.*
 __pycache__/
 *.pyc
 pwn_env/
+assembly.md
