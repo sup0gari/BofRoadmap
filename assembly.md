@@ -58,3 +58,10 @@ mov rsi, rsp
 mov rax, 59
 syscall
 ```
+
+## マシン語への変換
+nasmを使用するかpythonのpwntoolsを使用。
+```bash
+nasm -f elf64 <assemblyファイル> -o shell.o
+objdump -d shell.o
+```
