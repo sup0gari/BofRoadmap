@@ -13,3 +13,4 @@ __pycache__/
 *.pyc
 pwn_env/
 assembly.md
+*.asm
